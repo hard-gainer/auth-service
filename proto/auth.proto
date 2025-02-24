@@ -1,0 +1,74 @@
+// protoc -I proto proto/auth.proto --go_out=./proto --go_opt=paths=source_relative --go-grpc_out=./proto
+// export CONFIG_PATH="/home/gainer/dev/GoProjects/auth-service/config/config.yaml"
+syntax = "proto3";
+
+package auth;
+
+option go_package = ".";
+
+service Auth {
+   rpc Register (RegisterRequest) returns (RegisterResponse);
+   rpc Login (LoginRequest) returns (LoginResponse);
+   rpc IsAdmin (IsAdminRequest) returns (IsAdminResponse);
+   rpc Logout (LogoutRequest) returns (LogoutResponse);
+   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+   rpc GetUser (GetUserRequest) returns (GetUserResponse);
+}
+
+message RegisterRequest {
+   string name = 1;
+   string email = 2;
+   string password = 3;
+   string role = 4;
+   bool is_admin = 5;
+}
+
+message RegisterResponse {
+   int64 user_id = 1;
+}
+
+message LoginRequest {
+   string email = 1;
+   string password = 2;
+   int32 app_id = 3;
+}
+
+message LoginResponse {
+    string token = 1;
+}
+
+message IsAdminRequest {
+  int64 user_id = 1;
+}
+
+message IsAdminResponse {
+  bool is_admin = 1;
+}
+
+message LogoutRequest {
+  string token = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
+}
+
+message ValidateTokenRequest {
+    string token = 1;
+}
+
+message ValidateTokenResponse {
+    int32 user_id = 1;
+    bool is_valid = 2;
+}
+
+message GetUserRequest {
+    int32 user_id = 1;
+}
+
+message GetUserResponse {
+    int32 id = 1;
+    string name = 2;
+    string email = 3;
+    string role = 4;
+}

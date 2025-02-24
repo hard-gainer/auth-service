@@ -1,0 +1,4 @@
+db_url: "postgresql://root:secret@localhost:5433/auth?sslmode=disable"
+grpc:
+  port: 44044
+  timeout: 10h
