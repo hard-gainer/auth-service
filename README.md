@@ -10,10 +10,11 @@
 5. Хранение пользователей и приложений в базе PostgreSQL.
 
 ## Стэк технологий
-- Go + gRPC  
-- PostgreSQL (через драйвер pgx)  
-- Docker для контейнеризации  
-- Миграции с помощью [golang-migrate](https://github.com/golang-migrate/migrate)
+- **Go** (основной язык)
+- **gRPC** (для взаимодействия с [основным сервисом](https://github.com/hard-gainer/team-manager))
+- **PostgreSQL** (в качестве основной базы данных, использовался драйвер [pgx](https://github.com/jackc/pgx))
+- [**Migrate**](https://github.com/golang-migrate/migrate) (для миграций)
+- **Docker** (для контейнеризации бд)
 
 ## Взаимодействие с другим сервисом
 - Этот сервис предоставляет RPC-методы, которые вызываются другим микросервисом.  
