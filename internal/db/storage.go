@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/hard-gainer/auth-service/internal/domain"
 	"github.com/jackc/pgx/v5"
@@ -11,7 +12,8 @@ import (
 )
 
 type Storage struct {
-	db *pgx.Conn
+	db  *pgx.Conn
+	log *slog.Logger
 }
 
 var (
@@ -20,7 +22,7 @@ var (
 	ErrAppNotFound  = errors.New("app not found")
 )
 
-func New(dbURL string) (*Storage, error) {
+func New(dbURL string, log *slog.Logger) (*Storage, error) {
 	const op = "db.New"
 
 	db, err := pgx.Connect(context.Background(), dbURL)
@@ -28,7 +30,10 @@ func New(dbURL string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{
+		db:  db,
+		log: log,
+	}, nil
 }
 
 func (s *Storage) Stop() error {
@@ -61,10 +66,10 @@ func (s *Storage) GetUserByEmail(ctx context.Context, email string) (domain.User
 
 	var user domain.User
 	err := s.db.QueryRow(ctx,
-		`SELECT id, name, email, pass_hash 
+		`SELECT id, name, email, pass_hash, role
          FROM users 
          WHERE email = $1`,
-		email).Scan(&user.ID, &user.Name, &user.Email, &user.PassHash)
+		email).Scan(&user.ID, &user.Name, &user.Email, &user.PassHash, &user.Role)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -79,12 +84,18 @@ func (s *Storage) GetUserByEmail(ctx context.Context, email string) (domain.User
 func (s *Storage) GetUserByID(ctx context.Context, userID int64) (domain.UserInfo, error) {
 	const op = "db.GetUserById"
 
+	log := s.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("retrieving user by id")
+
 	var user domain.UserInfo
 	err := s.db.QueryRow(ctx,
-		`SELECT id, name, email
+		`SELECT id, name, email, role
          FROM users 
          WHERE id = $1`,
-		userID).Scan(&user.ID, &user.Name, &user.Email)
+		userID).Scan(&user.ID, &user.Name, &user.Email, &user.Role)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -93,6 +104,7 @@ func (s *Storage) GetUserByID(ctx context.Context, userID int64) (domain.UserInf
 		return domain.UserInfo{}, fmt.Errorf("%s: %w", op, err)
 	}
 
+	log.Info("user found successfully", user)
 	return user, nil
 }
 

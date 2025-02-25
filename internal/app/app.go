@@ -19,7 +19,7 @@ func New(
 	dbUrl string,
 	tokenTTL time.Duration,
 ) *App {
-	storage, err := db.New(dbUrl)
+	storage, err := db.New(dbUrl, log)
 	if err != nil {
 		panic(err)
 	}

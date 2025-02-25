@@ -22,7 +22,6 @@ type App struct {
 	port       int
 }
 
-// New creates new gRPC server app.
 func New(
 	log *slog.Logger,
 	authService authgrpc.Auth,
@@ -30,10 +29,8 @@ func New(
 ) *App {
 	loggingOpts := []logging.Option{
 		logging.WithLogOnEvents(
-			//logging.StartCall, logging.FinishCall,
 			logging.PayloadReceived, logging.PayloadSent,
 		),
-		// Add any other option (check functions starting with logging.With).
 	}
 
 	recoveryOpts := []recovery.Option{
@@ -59,22 +56,18 @@ func New(
 	}
 }
 
-// InterceptorLogger adapts slog logger to interceptor logger.
-// This code is simple enough to be copied and not imported.
 func InterceptorLogger(l *slog.Logger) logging.Logger {
 	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
 		l.Log(ctx, slog.Level(lvl), msg, fields...)
 	})
 }
 
-// MustRun runs gRPC server and panics if any error occurs.
 func (a *App) MustRun() {
 	if err := a.Run(); err != nil {
 		panic(err)
 	}
 }
 
-// Run runs gRPC server.
 func (a *App) Run() error {
 	const op = "grpcapp.Run"
 
@@ -92,7 +85,6 @@ func (a *App) Run() error {
 	return nil
 }
 
-// Stop stops gRPC server.
 func (a *App) Stop() {
 	const op = "grpcapp.Stop"
 

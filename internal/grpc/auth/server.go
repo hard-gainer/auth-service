@@ -140,6 +140,7 @@ func (s *serverAPI) GetUser(
 		Id:    int32(user.ID),
 		Name:  user.Name,
 		Email: user.Email,
+		Role:  user.Role,
 	}, nil
 }
 

@@ -5,12 +5,14 @@ type User struct {
 	Name     string
 	Email    string
 	PassHash []byte
+	Role     string
 }
 
 type UserInfo struct {
-	ID       int64
-	Name     string
-	Email    string
+	ID    int64
+	Name  string
+	Email string
+	Role  string
 }
 
 type App struct {
