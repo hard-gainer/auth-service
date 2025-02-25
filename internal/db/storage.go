@@ -104,7 +104,6 @@ func (s *Storage) GetUserByID(ctx context.Context, userID int64) (domain.UserInf
 		return domain.UserInfo{}, fmt.Errorf("%s: %w", op, err)
 	}
 
-	log.Info("user found successfully", user)
 	return user, nil
 }
 
