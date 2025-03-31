@@ -9,10 +9,11 @@ import (
 	"github.com/hard-gainer/auth-service/internal/domain"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Storage struct {
-	db  *pgx.Conn
+	db  *pgxpool.Pool
 	log *slog.Logger
 }
 
@@ -25,9 +26,13 @@ var (
 func New(dbURL string, log *slog.Logger) (*Storage, error) {
 	const op = "db.New"
 
-	db, err := pgx.Connect(context.Background(), dbURL)
+	db, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err := db.Ping(context.Background()); err != nil {
+        return nil, fmt.Errorf("%s: failed to ping database: %w", op, err)
 	}
 
 	return &Storage{
@@ -37,7 +42,8 @@ func New(dbURL string, log *slog.Logger) (*Storage, error) {
 }
 
 func (s *Storage) Stop() error {
-	return s.db.Close(context.Background())
+	s.db.Close()
+	return nil
 }
 
 func (s *Storage) SaveUser(ctx context.Context, name, email string, passHash []byte, role string, isAdmin bool) (int64, error) {
